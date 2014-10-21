@@ -112,7 +112,7 @@
 (require 'savehist)
 (setq savehist-additional-variables
       ;; search entries
-      '(search ring regexp-search-ring)
+      '(search-ring regexp-search-ring)
       ;; save every minute
       savehist-autosave-interval 60
       ;; keep the home clean
@@ -175,6 +175,12 @@ The body of the advice is in BODY."
 
 (when (version<= "24.4" emacs-version)
   (add-hook 'focus-out-hook 'prelude-auto-save-command))
+
+(defadvice set-buffer-major-mode (after set-major-mode activate compile)
+  "Set buffer major mode according to `auto-mode-alist'."
+  (let* ((name (buffer-name buffer))
+         (mode (assoc-default name auto-mode-alist 'string-match)))
+    (with-current-buffer buffer (if mode (funcall mode)))))
 
 ;; highlight the current line
 (global-hl-line-mode +1)
@@ -239,10 +245,13 @@ The body of the advice is in BODY."
 (setq projectile-cache-file (expand-file-name  "projectile.cache" prelude-savefile-dir))
 (projectile-global-mode t)
 
-;; anzu-mode enhances isearch by showing total matches and current match position
+;; anzu-mode enhances isearch & query-replace by showing total matches and current match position
 (require 'anzu)
 (diminish 'anzu-mode)
 (global-anzu-mode)
+
+(global-set-key (kbd "M-%") 'anzu-query-replace)
+(global-set-key (kbd "C-M-%") 'anzu-query-replace-regexp)
 
 ;; shorter aliases for ack-and-a-half commands
 (defalias 'ack 'ack-and-a-half)
