@@ -1,1 +1,2 @@
-(setq guru-warn-only t)
+;; (setq guru-warn-only t)
+(setq prelude-guru nil)
